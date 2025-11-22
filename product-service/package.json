@@ -1,0 +1,12 @@
+{
+    "name": "product-service",
+    "version": "1.0.0",
+    "description": "Service for product management",
+    "main": "app.js",
+    "scripts": {
+        "start": "node app.js"
+    },
+    "dependencies": {
+        "express": "^4.19.2"
+    }
+}
