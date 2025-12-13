@@ -1,30 +1,49 @@
-version: '3.9'
-
 services:
   product-service:
     build: ./product-service
-    ports:
-      - "3000:3000"
-    container_name: product-service
+    ports: 
+      - "${PRODUCT_SERVICE_PORT}:3000"
+    env_file:
+      - .env
+    environment:
+      DB_HOST: ${PRODUCT_DB_HOST}
+      DB_NAME: ${PRODUCT_DB_NAME}
+      DB_USER: ${PRODUCT_DB_USER}
+      DB_PASSWORD: ${PRODUCT_DB_PASSWORD}
+    container_name: product-services
     restart: always
+    depends_on:
+      product-db :
+        condition: service_healthy
+  
+  product-db:
+    image: mysql:latest
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD : ${PRODUCT_DB_PASSWORD}
+      MYSQL_DATABASE : ${PRODUCT_DB_NAME}
+    volumes:
+      - product-db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  
+  # cart-service:
+  #   build: ./cart-service
+  #   ports:
+  #     - "8000:8000"
+  #   container_name: cart-services
+  #   restart: always
 
-  cart-service:
-    build: ./cart-service
-    ports:
-      - "8000:8000"
-    container_name: cart-service
-    restart: always
+  # review-service:
+  #   build: ./review-service
+  #   ports:
+  #     - "5002:5002"
+  #   container_name: review-services
+  #   restart: always
 
-  review-service:
-    build: ./review-service
-    ports:
-      - "5002:5002"
-    container_name: review-service
-    restart: always
-
-  user-service:
-    build: ./user-service
-    ports:
-      - "4000:4000"
-    container_name: user-service
-    restart: always
+volumes:
+  product-db-data:

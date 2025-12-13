@@ -7,6 +7,9 @@
         "start": "node app.js"
     },
     "dependencies": {
-        "express": "^4.19.2"
+        "express": "^4.19.2",
+        "cors": "^2.8.5",
+        "sequelize": "^6.37.0",
+        "mysql2": "^3.9.0"
     }
 }
