@@ -11,4 +11,4 @@ COPY . .
 EXPOSE 5002
 
 #jalankan aplikasi
-CMD ["python","app.py"]
+CMD ["uvicorn","main:app", "--host","0.0.0.0","--port","5002"]
