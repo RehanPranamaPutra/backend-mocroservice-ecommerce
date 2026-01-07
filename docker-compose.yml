@@ -81,10 +81,67 @@ services:
     restart: always
     depends_on:
       - mongo-db
+  
+  user-service:
+    build: ./user-service
+    container_name: user-service
+    ports:
+      - "4000:4000"
+    environment:
+      - DB_HOST=user-db
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - PORT=4000
+    depends_on:
+      user-db :
+        condition: service_healthy
 
+  user-db:
+    image: postgres:15-alpine
+    container_name: user-db
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${DB_PORT}:5432"
+    restart: always
+    volumes:
+     - user-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  cart-db:
+    image: redis:alpine
+    container_name: cart-db
+    restart: always
+    ports:
+      - "6379:6379"
+
+  cart-service:
+    build: ./cart-service
+    container_name: cart-service
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_HOST=cart-db
+    depends_on:
+      - cart-db
+    volumes:
+      - ./cart-service:/app
+      - /app/vendor # <--- TAMBAHKAN INI. Ini memberitahu Docker: "Jangan timpa folder vendor ini dengan yang ada di laptop"
 volumes:
     product-db-data:
     mongo-db:
+    user-db-data:
 
 
       

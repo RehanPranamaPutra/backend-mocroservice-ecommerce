@@ -3,7 +3,12 @@
     "description": "Cart service Laravel lumen for ecommerce",
     "type": "project",
     "license": "MIT",
-    "require": {},
+    "require": {
+        "bramus/router": "~1.6",
+        "predis/predis": "^2.0",
+        "guzzlehttp/guzzle": "^7.0",
+        "vlucas/phpdotenv": "^5.5"
+    },
     "autoload": {
         "psr-4": {
             "CartService\\": "src/"
