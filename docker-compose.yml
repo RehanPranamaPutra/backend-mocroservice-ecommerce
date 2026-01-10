@@ -138,6 +138,27 @@ services:
     volumes:
       - ./cart-service:/app
       - /app/vendor # <--- TAMBAHKAN INI. Ini memberitahu Docker: "Jangan timpa folder vendor ini dengan yang ada di laptop"
+
+  # ==========================================================
+  # --- VIEWER AREA (AKSES DATABASE LEWAT BROWSER) ---
+  # ==========================================================
+
+  # 1. ADMINER (Untuk Lihat MySQL & Postgres)
+  adminer:
+    image: adminer
+    container_name: database-viewer
+    restart: always
+    ports:
+      - "8080:8080" 
+  
+  # 3. REDIS INSIGHT 
+  redis-insight:
+    image: redis/redisinsight:latest
+    container_name: redis-viewer
+    restart: always
+    ports:
+      - "5540:5540"
+
 volumes:
     product-db-data:
     mongo-db:

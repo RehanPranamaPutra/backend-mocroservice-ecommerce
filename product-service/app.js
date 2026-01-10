@@ -20,7 +20,7 @@ const Product = sequelize.define('Product', {
 // 2. Sinkronisasi model
 (async () => {
     try {
-        await sequelize.sync({ force: true });
+        await sequelize.sync({ alter: true });
         console.log('Product table created/updated!');     
     } catch (error) {
         console.error('Unable to sync Product table:', error);

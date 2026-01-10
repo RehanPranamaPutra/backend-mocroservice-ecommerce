@@ -7,6 +7,8 @@ app = FastAPI()
 
 class Review(BaseModel):
     product_id: int
+    user_id: int      # Tambahkan ini agar tahu siapa yang review
+    user_name: str    # Simpan nama user di sini (Denormalisasi)
     review: str
     rating: int
 
@@ -48,3 +50,17 @@ def get_reviews_by_product(product_id: int):
         "success": True,
         "data": reviews
     }
+
+# Tambahkan ini di FastAPI (review-service/main.py)
+@app.put("/reviews/{review_id}")
+def update_review(review_id: str, review: Review):
+    reviews_collection.update_one(
+        {"_id": ObjectId(review_id)},
+        {"$set": review.dict()}
+    )
+    return {"success": True, "message": "Review updated"}
+
+@app.delete("/reviews/{review_id}")
+def delete_review(review_id: str):
+    reviews_collection.delete_one({"_id": ObjectId(review_id)})
+    return {"success": True, "message": "Review deleted"}

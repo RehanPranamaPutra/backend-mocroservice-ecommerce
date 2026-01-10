@@ -66,4 +66,53 @@ $router->get('/carts/(\d+)', function($userId) use ($redis) {
     responseJson(['user_id' => $userId, 'items' => $items, 'total' => $total]);
 });
 
+// 4. Get All Carts (Melihat semua keranjang dari semua user)
+$router->get('/carts/all', function() use ($redis) {
+    // A. Ambil semua kunci yang diawali dengan "cart:"
+    $keys = $redis->keys('cart:*');
+    $allCarts = [];
+    $client = new \GuzzleHttp\Client();
+
+    foreach ($keys as $key) {
+        // Ambil user_id dari nama key (misal "cart:10" jadi "10")
+        $userId = str_replace('cart:', '', $key);
+        $cartData = $redis->hgetall($key);
+        
+        $items = [];
+        $userTotal = 0;
+
+        foreach ($cartData as $productId => $qty) {
+            try {
+                // Ambil info produk dari Product Service
+                $res = $client->request('GET', "http://product-services:3000/products/$productId");
+                $product = json_decode($res->getBody(), true)['data'];
+                
+                $price = $product['price'];
+                $items[] = [
+                    'product_id' => $productId,
+                    'name' => $product['name'],
+                    'price' => $price,
+                    'quantity' => (int)$qty,
+                    'subtotal' => $price * $qty
+                ];
+                $userTotal += ($price * $qty);
+            } catch (\Exception $e) {
+                continue; 
+            }
+        }
+
+        // Masukkan ke array utama
+        $allCarts[] = [
+            'user_id' => $userId,
+            'items' => $items,
+            'total_belanja' => $userTotal
+        ];
+    }
+
+    responseJson([
+        'total_users_active' => count($allCarts),
+        'all_user_carts' => $allCarts
+    ]);
+});
+
 $router->run();
